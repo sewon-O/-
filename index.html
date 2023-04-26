@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>메모장</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <div class="header-wrap">
+        <h1>메모장</h1>
+        <div>
+          <p class="hello">환영합니다 <strong>홍길동</strong>님!</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <main class="memo-main">
+        <h2 class="heart"><span id="date"></span> 메모장 작성</h2>
+
+        <form>
+          <label class="a11y-hidden" for="memo-title">일기 제목</label>
+          <input
+            class="input-style"
+            id="memo-title"
+            type="text"
+            placeholder="제목"
+            required
+          />
+
+          <label class="a11y-hidden" for="memo-content">일기 내용</label>
+          <textarea
+            class="memo-textarea"
+            id="memo-content"
+            placeholder="메모"
+          ></textarea>
+          <button onclick="saveNote()" class="black-btn" type="submit">
+            저장하기
+          </button>
+        </form>
+      </main>
+      <section class="memo-section">
+        <h2 class="a11y-hidden">일기 목록</h2>
+        <ul class="section-ul"></ul>
+      </section>
+    </div>
+
+    <script>
+      let allMemo = JSON.parse(localStorage.getItem("allMemo"));
+      allMemo = allMemo ?? [];
+      render();
+
+      // 메모 저장
+      function saveNote() {
+        const title = document.getElementById("memo-title").value;
+        const content = document.getElementById("memo-content").value;
+
+        allMemo.push({ title, content, len: allMemo.length });
+
+        localStorage.setItem("allMemo", JSON.stringify(allMemo));
+        render();
+      }
+
+      // 저장된 메모 화면 표시 기능
+      function render() {
+        const display = document.querySelector(".section-ul");
+        display.innerHTML = "";
+
+        for (let i = allMemo.length; i > 0; i--) {}
+        for (const item of allMemo) {
+          const saveLi = document.createElement("li");
+          const saveArticle = document.createElement("article");
+          const saveTitle = document.createElement("h3");
+          const saveContent = document.createElement("p");
+          const saveId = document.createElement("p");
+          const btnDiv = document.createElement("div");
+          const btnDelete = document.createElement("button");
+          // const btnSpan = document.createElement("span");
+          // const btnEdit = document.createElement("button");
+
+          saveTitle.innerHTML = item.title;
+          saveContent.innerHTML = item.content;
+          saveId.textContent = item.len + 1;
+
+          saveArticle.className = "memo-article";
+          saveTitle.className = "article-title";
+          saveContent.className = "article-content";
+          btnDiv.className = "button-group";
+          btnDelete.textContent = "삭제";
+          btnDelete.setAttribute("id", item.len);
+          btnDelete.setAttribute("onclick", "remove()");
+          // btnEdit.textContent = "수정";
+
+          display.appendChild(saveLi);
+          saveLi.appendChild(saveArticle);
+          saveArticle.appendChild(saveTitle);
+          saveArticle.appendChild(saveContent);
+          saveArticle.appendChild(btnDiv);
+          btnDiv.appendChild(btnDelete);
+          // btnDiv.appendChild(btnSpan);
+          // btnDiv.appendChild(btnEdit);
+
+          // 저장된 날짜 표시
+          const saveTime = document.createElement("time");
+          saveTime.className = "article-time";
+          saveArticle.appendChild(saveTime);
+          const memoDate = new Date();
+          const memoInfo = `${memoDate.getFullYear()}년 ${
+            memoDate.getMonth() + 1
+          }월 ${memoDate.getDate()}일 ${getDayString(memoDate.getDay())}요일`;
+          saveTime.innerHTML = memoInfo;
+        }
+      }
+
+      // 삭제 기능
+      function remove() {
+        const idx = allMemo.find((item) => item.len == event.srcElement.id);
+        if (idx) {
+          allMemo.splice(
+            allMemo.findIndex((item) => item.len == idx.len),
+            1
+          );
+        }
+        localStorage.setItem("allMemo", JSON.stringify(allMemo));
+        render();
+      }
+
+      // 수정 기능
+      function edit() {}
+
+      // 오늘 날짜 표시
+      function date() {
+        const dateEl = document.getElementById("date");
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        dateEl.innerHTML = `${year}. ${month}. ${day}`;
+      }
+      function getDayString(day) {
+        const dayString = ["일", "월", "화", "수", "목", "금", "토"];
+        return dayString[day];
+      }
+      date();
+    </script>
+  </body>
+</html>
